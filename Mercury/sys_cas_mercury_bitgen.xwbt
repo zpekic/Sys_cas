@@ -1,0 +1,8 @@
+INTSTYLE=ise
+INFILE=C:\Users\zoltanp\Documents\HexCalc\Sys_cas\Mercury\sys_cas_mercury.ncd
+OUTFILE=C:\Users\zoltanp\Documents\HexCalc\Sys_cas\Mercury\sys_cas_mercury.bit
+FAMILY=Spartan3A and Spartan3AN
+PART=xc3s200a-4vq100
+WORKINGDIR=C:\Users\zoltanp\Documents\HexCalc\Sys_cas\Mercury
+LICENSE=WebPack
+USER_INFO=210994392_0_0_816
