@@ -235,7 +235,7 @@ signal switch, button: std_logic_vector(7 downto 0);
 signal frame_ready, frame_valid, frame_active: std_logic;
 signal frame_data, uart_frame, display: std_logic_vector(15 downto 0);
 --signal rx, rx_analog, rx_digital: std_logic;
-signal baudrate_x1, baudrate_x2, baudrate_x4: std_logic;
+signal baudrate_x1, baudrate_x2, baudrate_x4, baudrate_x8: std_logic;
 signal sr: std_logic_vector(31 downto 0);
 
 -- https://reference.digilentinc.com/reference/pmod/pmodusbuart/reference-manual
@@ -246,11 +246,17 @@ alias nCTS: std_logic is PMOD(7);	-- in, active low
 
 begin
    
--- connect to "oscilloscope"
+-- connect to hobby-level oscilloscope such as https://www.parallax.com/product/32220
+-- in addition, analog signals 
 PMOD(0) <= baudrate_x4;
 PMOD(1) <= baudrate_x1;
 PMOD(2) <= RXD_TTY;
 PMOD(3) <= TXD_TTY;
+-- show same on LEDs
+LED(0) <= baudrate_x4;
+LED(1) <= baudrate_x1;
+LED(2) <= RXD_TTY;
+LED(3) <= TXD_TTY;
 	
 RESET <= USR_BTN;
 	
@@ -306,23 +312,23 @@ baudgen: sn74hc4040 port map (
 			q12_1 =>  open	
 		);
 --
-powergen: sn74hc4040 port map (
-			clock_10 => freq4096,
-			reset_11 => RESET,
-			q1_9 => open, 
-			q2_7 => open,
-			q3_6 => open,		
-			q4_5 => open,		
-			q5_3 => open,		
-			q6_2 => open, 	
-			q7_4 => open,		
-			q8_13 => open,		
-			q9_12 =>  open,	
-			q10_14 => freq4,	
-			q11_15 => freq2,	
-			q12_1 =>  open	
-		);
---	
+--powergen: sn74hc4040 port map (
+--			clock_10 => freq4096,
+--			reset_11 => RESET,
+--			q1_9 => open, 
+--			q2_7 => open,
+--			q3_6 => open,		
+--			q4_5 => open,		
+--			q5_3 => open,		
+--			q6_2 => open, 	
+--			q7_4 => open,		
+--			q8_13 => open,		
+--			q9_12 =>  open,	
+--			q10_14 => freq4,	
+--			q11_15 => freq2,	
+--			q12_1 =>  open	
+--		);
+----	
 	debounce_sw: debouncer8channel Port map ( 
 		clock => freq19200, 
 		reset => RESET,
@@ -337,12 +343,7 @@ powergen: sn74hc4040 port map (
 		signal_raw(3 downto 0) => BTN,
 		signal_debounced => button
 	);
-	
-LED(0) <= '0';
-LED(1) <= '0';
-LED(2) <= '0';
-LED(3) <= '0';
-							
+				
 leds: fourdigitsevensegled Port map ( 
 			-- inputs
 			hexdata => hexdata,
@@ -368,6 +369,16 @@ with digsel select
 --
 -- UART input coming either directly from USB2UART, or ADC
 -- 
+with switch(7 downto 5) select
+		baudrate_x8 <= '1' when "111",			-- Not supported!
+							freq153600 when "110", 
+							freq76800 when "101",
+							freq38400 when "100",		
+							freq19200 when "011",		
+							freq9600 when "010",		
+							freq4800 when "001", 	
+							freq2400 when others;		
+
 with switch(7 downto 5) select
 		baudrate_x4 <= freq153600 when "111",
 							freq76800 when "110", 
@@ -400,10 +411,10 @@ with switch(7 downto 5) select
 
 streamer: tapeuart port map ( 
 				reset => RESET,
-				serout => open, --RXD_TTY,
-				serin => '1', --TXD_TTY,
-				freq_mark => freq4800,
-				freq_space => freq2400,
+				serout => RXD_TTY,
+				serin => TXD_TTY,
+				freq_mark => baudrate_x8,
+				freq_space => baudrate_x4,
 				audio_left => AUDIO_OUT_L,
 				audio_right => AUDIO_OUT_R,
 				adc_clk => freq24M,
@@ -414,7 +425,7 @@ streamer: tapeuart port map (
 				adc_csn => ADC_CSN,
 				----
 				debugsel => switch(0),
-				debug => open --display
+				debug => display
 			);
 
 --
