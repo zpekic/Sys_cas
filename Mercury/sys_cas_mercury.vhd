@@ -168,15 +168,7 @@ component uart_sender is
 				enable : in  STD_LOGIC;
 				data : in STD_LOGIC_VECTOR(7 downto 0));
 end component;
-		
-component signalcounter is
-    Port ( clk : in  STD_LOGIC;
-           reset : in  STD_LOGIC;
-           input : in  STD_LOGIC;
-           sel : in  STD_LOGIC;
-           count : out  STD_LOGIC_VECTOR (15 downto 0));
-end component;
-
+	
 component tapeuart is
     Port ( reset : in  STD_LOGIC;
            serout : out  STD_LOGIC;
@@ -204,16 +196,30 @@ component debouncer8channel is
            signal_debounced : out STD_LOGIC_VECTOR (7 downto 0));
 end component;
 
+type rom16x8 is array (0 to 7) of std_logic_vector(15 downto 0);
+signal display_config: rom16x8 := (
+-- 0 X X -- 8 bits 1 stop bit (9 bit frame)
+	X"8001",
+	X"8001",
+	X"8001",
+	X"8001",
+-- 1 0 0 -- 8 bits, space parity (10 bit frame)
+	X"8151",
+-- 1 0 1 -- 8 bits, even parity (10 bit frame)
+	X"81E1",
+-- 1 1 0 -- 8 bits, odd parity (10 bit frame)
+	X"8101",
+-- 1 1 1 -- 8 bits, mark parity == 8 bits, 2 stop bits
+	X"8002"
+);
 
 signal RESET: std_logic;
 
 -- debug
-signal test_static, test_dynamic, test_scroll, test_clk, nScrollEnable: std_logic;
+signal display, display_host, display_streamer, display_baudrate: std_logic_vector(15 downto 0);
 signal digsel: std_logic_vector(1 downto 0);
-signal offset_new: std_logic_vector(7 downto 0);
-signal offset_add_lo_cout: std_logic;
---signal h, digsel0_delayed: std_logic;
 signal hexdata, hexsel, showdigit: std_logic_vector(3 downto 0);
+signal warning: std_logic;
 ---
 signal data: std_logic_vector(15 downto 0);
 signal freq_uart, freq_uart4: std_logic;
@@ -222,21 +228,16 @@ signal freq_uart, freq_uart4: std_logic;
 signal freq24M, dotclk, freq0M75: std_logic;
 signal prescale_baud, prescale_power: integer range 0 to 65535;
 signal freq153600, freq76800, freq38400, freq19200, freq9600, freq4800, freq2400, freq1200, freq600, freq300, freq150: std_logic;		
-signal freq4096, freq2, freq4: std_logic;		
+signal freq4096, freq2, freq4: std_logic;	
 
 ---
 signal switch, button: std_logic_vector(7 downto 0);
 
-
---alias ps2_data: std_logic is LED(0);
---alias ps2_clk: std_logic is LED(1);
-
 -- UART
-signal frame_ready, frame_valid, frame_active: std_logic;
-signal frame_data, uart_frame, display: std_logic_vector(15 downto 0);
---signal rx, rx_analog, rx_digital: std_logic;
+--signal frame_ready, frame_valid, frame_active: std_logic;
+--signal frame_data, uart_frame: std_logic_vector(15 downto 0);
 signal baudrate_x1, baudrate_x2, baudrate_x4, baudrate_x8: std_logic;
-signal sr: std_logic_vector(31 downto 0);
+--signal sr: std_logic_vector(31 downto 0);
 
 -- https://reference.digilentinc.com/reference/pmod/pmodusbuart/reference-manual
 alias nRTS: std_logic is PMOD(4); 	-- out, active low
@@ -247,7 +248,7 @@ alias nCTS: std_logic is PMOD(7);	-- in, active low
 begin
    
 -- connect to hobby-level oscilloscope such as https://www.parallax.com/product/32220
--- in addition, analog signals 
+-- in addition, analog signals can be measured too
 PMOD(0) <= baudrate_x4;
 PMOD(1) <= baudrate_x1;
 PMOD(2) <= RXD_TTY;
@@ -261,7 +262,7 @@ LED(3) <= TXD_TTY;
 RESET <= USR_BTN;
 	
 clockgen: sn74hc4040 port map (
-			clock_10 => EXT_CLK,	-- 48MHz "half-size" crystal on Mercury baseboard
+			clock_10 => CLK,	-- replace with EXT_CLK to use 48MHz "half-size" crystal on Mercury baseboard
 			reset_11 => RESET,
 			q1_9 => freq24M, 
 			q2_7 => dotclk,
@@ -269,23 +270,25 @@ clockgen: sn74hc4040 port map (
 			q4_5 => open, --PMOD(6),			-- 3
 			q5_3 => open, --PMOD(5),			-- 1.5
 			q6_2 => freq0M75, --PMOD(4), 		-- 0.75
-			q7_4 =>   open,		-- 0.325
-			q8_13 =>  open,		-- 0.1625
-			q9_12 =>  open,		-- 0.08125
-			q10_14 => open,		-- 0.040625
-			q11_15 => digsel(0),	-- 0.0203125
-			q12_1 =>  digsel(1)	-- 0.01015625
+			q7_4 =>   open,		-- 0.375
+			q8_13 =>  open,		-- 0.1875
+			q9_12 =>  open,		-- 0.093750
+			q10_14 => open,		-- 0.046875
+			q11_15 => digsel(0),	-- 0.0234375
+			q12_1 =>  digsel(1)	-- 0.01171875
 		);
 --
 prescale: process(CLK, freq153600, freq4096)
 begin
 	if (rising_edge(CLK)) then
+		-- for standard baudrates
 		if (prescale_baud = 0) then
 			freq153600 <= not freq153600;
 			prescale_baud <= (50000000 / (2 * 153600));
 		else
 			prescale_baud <= prescale_baud - 1;
 		end if;
+		-- for power of 2
 		if (prescale_power = 0) then
 			freq4096 <= not freq4096;
 			prescale_power <= (50000000 / (2 * 4096));
@@ -312,22 +315,22 @@ baudgen: sn74hc4040 port map (
 			q12_1 =>  open	
 		);
 --
---powergen: sn74hc4040 port map (
---			clock_10 => freq4096,
---			reset_11 => RESET,
---			q1_9 => open, 
---			q2_7 => open,
---			q3_6 => open,		
---			q4_5 => open,		
---			q5_3 => open,		
---			q6_2 => open, 	
---			q7_4 => open,		
---			q8_13 => open,		
---			q9_12 =>  open,	
---			q10_14 => freq4,	
---			q11_15 => freq2,	
---			q12_1 =>  open	
---		);
+powergen: sn74hc4040 port map (
+			clock_10 => freq4096,
+			reset_11 => RESET,
+			q1_9 => open, 
+			q2_7 => open,
+			q3_6 => open,		
+			q4_5 => open,		
+			q5_3 => open,		
+			q6_2 => open, 	
+			q7_4 => open,		
+			q8_13 => open,		
+			q9_12 =>  open,	
+			q10_14 => freq4,	
+			q11_15 => freq2,	
+			q12_1 =>  open	
+		);
 ----	
 	debounce_sw: debouncer8channel Port map ( 
 		clock => freq19200, 
@@ -343,6 +346,10 @@ baudgen: sn74hc4040 port map (
 		signal_raw(3 downto 0) => BTN,
 		signal_debounced => button
 	);
+
+-- use 4 digit seven segment display on base board for some basic info
+display <= display_host when (switch(1) = '1') else display_streamer;
+display_host <= display_baudrate when (switch(0) = '1') else  display_config(to_integer(unsigned(switch(4 downto 2))));
 				
 leds: fourdigitsevensegled Port map ( 
 			-- inputs
@@ -358,7 +365,7 @@ leds: fourdigitsevensegled Port map (
 			segment(6 downto 0) => A_TO_G
 		);
 
-showdigit <= "1111"; -- when (data(15) = '1') else (others => freq2); 
+showdigit <= "0000" when (warning = '1' and freq2 = '1') else "1111"; 
 
 with digsel select
 	hexdata <= 	display(3 downto 0) when "00",	
@@ -366,11 +373,21 @@ with digsel select
 					display(11 downto 8) when "10",
 					display(15 downto 12) when others;
 
+baud_counter: freqcounter port map ( 
+				reset => RESET,
+				clk  => freq2,
+				freq => baudrate_x1,
+				bcd => '0',
+				double => '1',
+				limit => X"04AF", -- indicate the reliable bps limit
+				ge => warning,
+				value => display_baudrate
+			);
 --
 -- UART input coming either directly from USB2UART, or ADC
 -- 
 with switch(7 downto 5) select
-		baudrate_x8 <= '1' when "111",			-- Not supported!
+		baudrate_x8 <= '1' when "111",		-- Not supported!
 							freq153600 when "110", 
 							freq76800 when "101",
 							freq38400 when "100",		
@@ -425,31 +442,31 @@ streamer: tapeuart port map (
 				adc_csn => ADC_CSN,
 				----
 				debugsel => switch(0),
-				debug => display
+				debug => display_streamer
 			);
 
 --
-serin: uart_receiver Port map ( 
-				rx_clk4 => baudrate_x4,
-				reset => RESET,
-				rx => RXD_TTY,	-- "txd" looking from the sender side
-				mode => switch(4 downto 2), 
-				frame_active => frame_active,
-				frame_ready => frame_ready, 
-				frame_valid => frame_valid,
-				frame_data => frame_data
-		);
+--serin: uart_receiver Port map ( 
+--				rx_clk4 => baudrate_x4,
+--				reset => RESET,
+--				rx => RXD_TTY,	-- "txd" looking from the sender side
+--				mode => switch(4 downto 2), 
+--				frame_active => frame_active,
+--				frame_ready => frame_ready, 
+--				frame_valid => frame_valid,
+--				frame_data => frame_data
+--		);
 
-capture_frame: process(RESET, frame_data, frame_ready)
-begin
-	if (RESET = '1') then
-		sr <= X"FFFFFFFF";
-	else
-		if (rising_edge(frame_ready)) then
-			sr <= sr(15 downto 0) & frame_data;
-		end if;
-	end if;
-end process;
+--capture_frame: process(RESET, frame_data, frame_ready)
+--begin
+--	if (RESET = '1') then
+--		sr <= X"FFFFFFFF";
+--	else
+--		if (rising_edge(frame_ready)) then
+--			sr <= sr(15 downto 0) & frame_data;
+--		end if;
+--	end if;
+--end process;
 
 
 end;

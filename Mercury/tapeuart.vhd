@@ -70,20 +70,21 @@ signal rxd, rxd_audio: std_logic;
 begin
 
 -- debug port
-debug <= std_logic_vector(limit0(15 downto 0)) when (debugsel = '0') else std_logic_vector(limit1(15 downto 0));
+--debug <= std_logic_vector(limit0(15 downto 0)) when (debugsel = '0') else std_logic_vector(limit1(15 downto 0));
+debug <= std_logic_vector("000000" & min) when (debugsel = '0') else std_logic_vector("000000" & max);
 
 -- output path
 f_out <= freq_space when (serin = '0') else freq_mark;	-- always output to audio
-audio_left  <= f_out; --baudrate_x2 when (PMOD(6) = '1') else baudrate_x4;
-audio_right <= f_out; --baudrate_x2 when (PMOD(6) = '1') else baudrate_x4;
+audio_left  <= f_out; 
+audio_right <= f_out; 
 
 -- input path
 f_in <= f_in_audio;
 
 serout <= not (txd);
 
-detect0 <= '1' when (delta > (limit0 - 20)) else '0'; -- X240 for 300baud, 120 for 600
-detect1 <= '1' when (delta < (limit1 + 20)) else '0'; -- X160 for 300baud, B0 for 600
+detect0 <= '1' when (delta > (limit0 - 15)) else '0'; -- X240 for 300baud, 120 for 600
+detect1 <= '1' when (delta < (limit1 + 15)) else '0'; -- X160 for 300baud, B0 for 600
 
 ntxd <= not (detect0 or txd);
 txd <= not (detect1 or ntxd);
@@ -144,11 +145,11 @@ on_adc_done : process (adc_done)
 begin
  if (rising_edge(adc_done)) then
 		if (f_in_audio = '0') then
-			if (unsigned(adc_dout) > "00" & X"24") then
+			if (unsigned(adc_dout) > "00" & X"12") then -- 24
 				f_in_audio <= '1';
 			end if;
 		else
-			if (unsigned(adc_dout) < "00" & X"24") then
+			if (unsigned(adc_dout) < "00" & X"12") then -- 24
 				f_in_audio <= '0';
 			end if;
 		end if;
