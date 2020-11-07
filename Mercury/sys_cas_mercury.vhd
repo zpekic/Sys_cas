@@ -4,7 +4,7 @@
 -- 
 -- Create Date: 08/29/2020 11:13:02 PM
 -- Design Name: FPGA cassette recorder demo
--- Module Name: sys_tim-011_mercury - Behavioral
+-- Module Name: sys_cas_mercury - Behavioral
 -- Project Name: 
 -- Target Devices: https://www.micro-nova.com/mercury/ + Baseboard
 -- Input devices: 
@@ -45,22 +45,22 @@ entity sys_cas_mercury is
 				USR_BTN: in std_logic; 
 
 				-- Switches on baseboard
-				-- SW(0) -- 
-				-- SW(1) -- 
-				-- SW(2) -- 
-				-- SW(3) -- 
-				-- SW(4) -- 
-				-- SW(5) -- 
-				-- SW(6) -- 
-				-- SW(7)	-- 
+				-- SW(0) -- 0: baudrate / min ADC, 1: mode / max ADC 
+				-- SW(1) -- 0: show baudrate / mode, 1: show ADC audion signal min/max on 7seg LED
+				-- SW(2) -- mode 0 -- see uartreceiver.vhd file for values
+				-- SW(3) -- mode 1
+				-- SW(4) -- mode 2
+				-- SW(5) -- baudrate 0 -- from 300 (000) to 38400 (111)
+				-- SW(6) -- baudrate 1
+				-- SW(7)	-- baudrate 2
 
 				SW: in std_logic_vector(7 downto 0); 
 
 				-- Push buttons on baseboard
-				-- BTN0 - scroll
-				-- BTN1 - video only test pattern (memory not affected)
-				-- BTN2 - fill left/right
-				-- BTN3 - fill top/down
+				-- BTN0 - not used, test DP3 on 7seg LED
+				-- BTN1 - not used, test DP2 on 7seg LED
+				-- BTN2 - not used, test DP1 on 7seg LED
+				-- BTN3 - not used, test DP0 on 7seg LED
 				BTN: in std_logic_vector(3 downto 0); 
 
 				-- Stereo audio output on baseboard
@@ -348,8 +348,8 @@ powergen: sn74hc4040 port map (
 	);
 
 -- use 4 digit seven segment display on base board for some basic info
-display <= display_host when (switch(1) = '1') else display_streamer;
-display_host <= display_baudrate when (switch(0) = '1') else  display_config(to_integer(unsigned(switch(4 downto 2))));
+display <= display_host when (switch(1) = '0') else display_streamer;
+display_host <= display_baudrate when (switch(0) = '0') else  display_config(to_integer(unsigned(switch(4 downto 2))));
 				
 leds: fourdigitsevensegled Port map ( 
 			-- inputs
@@ -377,9 +377,9 @@ baud_counter: freqcounter port map (
 				reset => RESET,
 				clk  => freq2,
 				freq => baudrate_x1,
-				bcd => '0',
+				bcd => '1',
 				double => '1',
-				limit => X"04AF", -- indicate the reliable bps limit
+				limit => X"1200", -- indicate the reliable bps limit
 				ge => warning,
 				value => display_baudrate
 			);

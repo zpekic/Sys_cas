@@ -83,13 +83,13 @@ f_in <= f_in_audio;
 
 serout <= not (txd);
 
-detect0 <= '1' when (delta > (limit0 - 15)) else '0'; -- X240 for 300baud, 120 for 600
-detect1 <= '1' when (delta < (limit1 + 15)) else '0'; -- X160 for 300baud, B0 for 600
+detect0 <= '1' when (delta > (limit0 - 15)) else '0'; 
+detect1 <= '1' when (delta < (limit1 + 15)) else '0'; 
 
 ntxd <= not (detect0 or txd);
 txd <= not (detect1 or ntxd);
 
-on_f_in: process(f_in)
+on_f_in: process(f_in, tick, prev)
 begin
 	if (rising_edge(f_in)) then
 		delta <= tick - prev;
@@ -97,7 +97,7 @@ begin
 	end if;
 end process;
 
-on_freq_space: process(freq_space)
+on_freq_space: process(freq_space, tick, prev0)
 begin
 	if (rising_edge(freq_space)) then
 		limit0 <= tick - prev0;
@@ -105,7 +105,7 @@ begin
 	end if;
 end process;
 
-on_freq_mark: process(freq_mark)
+on_freq_mark: process(freq_mark, tick, prev1)
 begin
 	if (rising_edge(freq_mark)) then
 		limit1 <= tick - prev1;
@@ -128,7 +128,7 @@ end process;
       adc_clk  => ADC_SCK
       );
 		
-on_adc_samplefreq: process(adc_samplefreq)
+on_adc_samplefreq: process(adc_samplefreq, adc_done)
 begin
 	if (adc_done = '1') then
 		adc_trigger <= '0';
@@ -140,8 +140,8 @@ begin
 	end if;
 end process;
 
-  -- ADC sampling process
-on_adc_done : process (adc_done)
+-- ADC sampling process
+on_adc_done : process (adc_done, f_in_audio)
 begin
  if (rising_edge(adc_done)) then
 		if (f_in_audio = '0') then
@@ -153,7 +153,6 @@ begin
 				f_in_audio <= '0';
 			end if;
 		end if;
-		--adc_value <= adc_dout(9 downto 2);
 			
 		if (unsigned(adc_dout) > max) then
 			max <= unsigned(adc_dout);

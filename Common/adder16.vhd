@@ -33,8 +33,7 @@ entity adder16 is
     Port ( cin : in  STD_LOGIC;
            a : in  STD_LOGIC_VECTOR (15 downto 0);
            b : in  STD_LOGIC_VECTOR (15 downto 0);
-           na : in  STD_LOGIC;
-           nb : in  STD_LOGIC;
+           sub : in  STD_LOGIC;
            bcd : in  STD_LOGIC;
            y : out  STD_LOGIC_VECTOR (15 downto 0);
            cout : out  STD_LOGIC);
@@ -61,8 +60,8 @@ s0: nibbleadder Port map (
 				cin => cin,
 				a => a(3 downto 0),
 				b => b(3 downto 0),
-				na => na,
-				nb => nb,
+				na => '0',
+				nb => sub,
 				bcd => bcd,
 				y => y(3 downto 0),
 				cout => cout3
@@ -72,8 +71,8 @@ s1: nibbleadder Port map (
 				cin => cout3,
 				a => a(7 downto 4),
 				b => b(7 downto 4),
-				na => na,
-				nb => nb,
+				na => '0',
+				nb => sub,
 				bcd => bcd,
 				y => y(7 downto 4),
 				cout => cout7
@@ -82,9 +81,9 @@ s1: nibbleadder Port map (
 s2: nibbleadder Port map ( 
 				cin => cout7,
 				a => a(11 downto 8),
-				b => a(11 downto 8),
-				na => na,
-				nb => nb,
+				b => b(11 downto 8),
+				na => '0',
+				nb => sub,
 				bcd => bcd,
 				y => y(11 downto 8),
 				cout => cout11
@@ -94,8 +93,8 @@ s3: nibbleadder Port map (
 				cin => cout11,
 				a => a(15 downto 12),
 				b => b(15 downto 12),
-				na => na,
-				nb => nb,
+				na => '0',
+				nb => sub,
 				bcd => bcd,
 				y => y(15 downto 12),
 				cout => cout
