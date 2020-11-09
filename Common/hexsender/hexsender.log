@@ -1,0 +1,184 @@
+--------------------------------------------------------
+-- mcc V0.9.0630 - Custom microcode compiler (c)2020-... 
+--    https://github.com/zpekic/MicroCodeCompiler
+--------------------------------------------------------
+Compiling hexsender.mcc, pass 1 out of 2.
+Line 144: resolved aliases:  goto
+L0144@0008. len <= def_len,if false then next else printLine
+
+Line 149: resolved aliases:  gosub
+L0149@000A.printLine: outchar <= colon,if false then next else tty_out
+
+Line 152: resolved aliases:  gosub
+L0152@000B. if false then next else tty_space
+
+Line 154: resolved aliases:  gosub
+L0154@000C. outchar <= hex, hexsel = lolen_hi,if false then next else tty_out
+
+Line 157: resolved aliases:  gosub
+L0157@000D. outchar <= hex, hexsel = lolen_lo, checksum <= add_len,if false then next else tty_out
+
+Line 160: resolved aliases:  gosub
+L0160@000E. if false then next else tty_space
+
+Line 162: resolved aliases:  gosub
+L0162@000F. outchar <= hex, hexsel = hiaddr_hi,if false then next else tty_out
+
+Line 165: resolved aliases:  gosub
+L0165@0010. outchar <= hex, hexsel = hiaddr_lo, checksum <= add_hiaddr,if false then next else tty_out
+
+Line 168: resolved aliases:  gosub
+L0168@0011. outchar <= hex, hexsel = loaddr_hi,if false then next else tty_out
+
+Line 171: resolved aliases:  gosub
+L0171@0012. outchar <= hex, hexsel = loaddr_lo, checksum <= add_loaddr,if false then next else tty_out
+
+Line 174: resolved aliases:  gosub
+L0174@0013. if false then next else tty_space
+
+Line 176: resolved aliases:  gosub
+L0176@0014. outchar <= hex, hexsel = rec_hi,if false then next else tty_out
+
+Line 179: resolved aliases:  gosub
+L0179@0015. outchar <= hex, hexsel = rec_lo, checksum <= add_rec,if false then next else tty_out
+
+Line 182: resolved aliases:  gosub
+L0182@0016. if false then next else tty_space
+
+Line 194: resolved aliases:  gosub
+L0194@001B. outchar <= hex, hexsel = data_hi,if false then next else tty_out
+
+Line 197: resolved aliases:  gosub
+L0197@001C. outchar <= hex, hexsel = data_lo, checksum <= add_data,if false then next else tty_out
+
+Line 200: resolved aliases:  gosub
+L0200@001D. if false then next else tty_space
+
+Line 202: resolved aliases:  goto
+L0202@001E. ma_current <= inc, len <= dec,if false then next else nextByte
+
+Line 207: resolved aliases:  gosub
+L0207@0020. outchar <= hex, hexsel = checksum_hi,if false then next else tty_out
+
+Line 210: resolved aliases:  gosub
+L0210@0021. outchar <= hex, hexsel = checksum_lo,if false then next else tty_out
+
+Line 213: resolved aliases:  gosub
+L0213@0022. if false then next else printCRLF
+
+Line 215: resolved aliases:  goto
+L0215@0023. if false then next else nextRow
+
+Line 218: resolved aliases:  gosub
+L0218@0024.printEnd: outchar <= hex, hexsel = f,if false then next else tty_out
+
+Line 221: resolved aliases:  gosub
+L0221@0025. outchar <= hex, hexsel = f,if false then next else tty_out
+
+Line 224: resolved aliases:  gosub
+L0224@0026. if false then next else printCRLF
+
+Line 226: resolved aliases:  goto
+L0226@0027. if false then next else waitStart
+
+Line 228: resolved aliases:  gosub
+L0228@0028.printCRLF: outchar <= cr,if false then next else tty_out
+
+Line 231: resolved aliases:  gosub
+L0231@0029. outchar <= lf,if false then next else tty_out
+
+Line 234: resolved aliases:  return
+L0234@002A. if false then next else return
+
+Line 240: resolved aliases:  return
+L0240@002D. tty_send = yes,if false then next else return
+
+Success: pass 1 244 line(s) read, 70 statement(s) parsed.
+Compiling hexsender.mcc, pass 2 out of 2.
+Field 'ready' 39 .. 39
+Field 'seq_cond' 38 .. 36
+Field 'pad1' 35 .. 34
+Field 'seq_then' 33 .. 28
+Field 'pad2' 27 .. 26
+Field 'seq_else' 25 .. 20
+Field 'ma_current' 19 .. 18
+Field 'data' 17 .. 17
+Field 'outchar' 16 .. 14
+Field 'checksum' 13 .. 11
+Field 'len' 10 .. 9
+Field 'rec' 8 .. 7
+Field 'hexsel' 6 .. 3
+Field 'bus_control' 2 .. 1
+Field 'tty_send' 0 .. 0
+Info: line 5 - code[0000] <= '0_000_00_000000_00_000000_01_0_000_000_00_00_0000_00_1'
+Info: line 5 - code[0001] <= '0_000_00_000000_00_000000_01_0_000_000_00_00_0000_00_1'
+Info: line 5 - code[0002] <= '0_000_00_000000_00_000000_01_0_000_000_00_00_0000_00_1'
+Info: line 5 - code[0003] <= '0_000_00_000000_00_000000_01_0_000_000_00_00_0000_00_1'
+Info: line 7 - mapper[0000] <= '000100'
+Info: line 7 - mapper[0001] <= '000100'
+Info: line 7 - mapper[0002] <= '000100'
+Info: line 7 - mapper[0003] <= '000100'
+Info: line 7 - mapper[0004] <= '000100'
+Info: line 7 - mapper[0005] <= '000100'
+Info: line 7 - mapper[0006] <= '000100'
+Info: line 7 - mapper[0007] <= '000100'
+Info: line 7 - mapper[0008] <= '000100'
+Info: line 7 - mapper[0009] <= '000100'
+Info: line 7 - mapper[000A] <= '000100'
+Info: line 7 - mapper[000B] <= '000100'
+Info: line 7 - mapper[000C] <= '000100'
+Info: line 7 - mapper[000D] <= '000100'
+Info: line 7 - mapper[000E] <= '000100'
+Info: line 7 - mapper[000F] <= '000100'
+Info: line 5 - code[0004] <= '1_001_00_000000_00_000001_11_0_000_000_00_00_0000_00_1'
+Info: line 5 - code[0005] <= '0_000_00_000000_00_000000_00_0_000_001_01_01_0000_00_1'
+Info: line 5 - code[0006] <= '0_010_00_100100_00_000000_00_0_000_000_00_00_0000_00_1'
+Info: line 5 - code[0007] <= '0_011_00_000000_00_001001_00_0_000_000_00_00_0000_00_1'
+Info: line 5 - code[0008] <= '0_111_00_000000_00_001010_00_0_000_000_10_00_0000_00_1'
+Info: line 5 - code[0009] <= '0_000_00_000000_00_000000_01_0_000_000_00_10_0000_00_1'
+Info: line 5 - code[000A] <= '0_111_00_000000_00_101100_00_0_001_000_00_00_0000_00_1'
+Info: line 5 - code[000B] <= '0_111_00_000000_00_101011_00_0_000_000_00_00_0000_00_1'
+Info: line 5 - code[000C] <= '0_111_00_000000_00_101100_00_0_101_000_00_00_0010_00_1'
+Info: line 5 - code[000D] <= '0_111_00_000000_00_101100_00_0_101_010_00_00_0011_00_1'
+Info: line 5 - code[000E] <= '0_111_00_000000_00_101011_00_0_000_000_00_00_0000_00_1'
+Info: line 5 - code[000F] <= '0_111_00_000000_00_101100_00_0_101_000_00_00_0100_00_1'
+Info: line 5 - code[0010] <= '0_111_00_000000_00_101100_00_0_101_011_00_00_0101_00_1'
+Info: line 5 - code[0011] <= '0_111_00_000000_00_101100_00_0_101_000_00_00_0110_00_1'
+Info: line 5 - code[0012] <= '0_111_00_000000_00_101100_00_0_101_100_00_00_0111_00_1'
+Info: line 5 - code[0013] <= '0_111_00_000000_00_101011_00_0_000_000_00_00_0000_00_1'
+Info: line 5 - code[0014] <= '0_111_00_000000_00_101100_00_0_101_000_00_00_1000_00_1'
+Info: line 5 - code[0015] <= '0_111_00_000000_00_101100_00_0_101_101_00_00_1001_00_1'
+Info: line 5 - code[0016] <= '0_111_00_000000_00_101011_00_0_000_000_00_00_0000_00_1'
+Info: line 5 - code[0017] <= '0_100_00_100100_00_000000_00_0_000_000_00_00_0000_00_1'
+Info: line 5 - code[0018] <= '0_010_00_011111_00_000000_00_0_000_000_00_00_0000_00_1'
+Info: line 5 - code[0019] <= '0_101_00_000000_00_000001_00_0_000_000_00_00_0000_10_1'
+Info: line 5 - code[001A] <= '0_000_00_000000_00_000000_00_1_000_000_00_00_0000_11_1'
+Info: line 5 - code[001B] <= '0_111_00_000000_00_101100_00_0_101_000_00_00_1010_00_1'
+Info: line 5 - code[001C] <= '0_111_00_000000_00_101100_00_0_101_110_00_00_1011_00_1'
+Info: line 5 - code[001D] <= '0_111_00_000000_00_101011_00_0_000_000_00_00_0000_00_1'
+Info: line 5 - code[001E] <= '0_111_00_000000_00_011000_10_0_000_000_11_00_0000_00_1'
+Info: line 5 - code[001F] <= '0_000_00_000000_00_000000_00_0_000_111_00_00_0000_00_1'
+Info: line 5 - code[0020] <= '0_111_00_000000_00_101100_00_0_101_000_00_00_1100_00_1'
+Info: line 5 - code[0021] <= '0_111_00_000000_00_101100_00_0_101_000_00_00_1101_00_1'
+Info: line 5 - code[0022] <= '0_111_00_000000_00_101000_00_0_000_000_00_00_0000_00_1'
+Info: line 5 - code[0023] <= '0_111_00_000000_00_000101_00_0_000_000_00_00_0000_00_1'
+Info: line 5 - code[0024] <= '0_111_00_000000_00_101100_00_0_101_000_00_00_1111_00_1'
+Info: line 5 - code[0025] <= '0_111_00_000000_00_101100_00_0_101_000_00_00_1111_00_1'
+Info: line 5 - code[0026] <= '0_111_00_000000_00_101000_00_0_000_000_00_00_0000_00_1'
+Info: line 5 - code[0027] <= '0_111_00_000000_00_000100_00_0_000_000_00_00_0000_00_1'
+Info: line 5 - code[0028] <= '0_111_00_000000_00_101100_00_0_011_000_00_00_0000_00_1'
+Info: line 5 - code[0029] <= '0_111_00_000000_00_101100_00_0_100_000_00_00_0000_00_1'
+Info: line 5 - code[002A] <= '0_111_00_000000_00_000010_00_0_000_000_00_00_0000_00_1'
+Info: line 5 - code[002B] <= '0_000_00_000000_00_000000_00_0_010_000_00_00_0000_00_1'
+Info: line 5 - code[002C] <= '0_110_00_000000_00_000001_00_0_000_000_00_00_0000_00_1'
+Info: line 5 - code[002D] <= '0_111_00_000000_00_000010_00_0_000_000_00_00_0000_00_1'
+Generating code: 
+Warning in line 5: found 18 uninitialized locations:
+002E .. 003F
+
+Writing 'C:\Users\zoltanp\Documents\HexCalc\Sys_cas\Common\hexsender\hexsender_code.mif' ... Done.
+Writing 'C:\Users\zoltanp\Documents\HexCalc\Sys_cas\Common\hexsender\hexsender_code.cgf' ... Done.
+Generating code 'C:\Users\zoltanp\Documents\HexCalc\Sys_cas\Common\hexsender\hexsender_code.vhd' ... Done.
+Writing 'C:\Users\zoltanp\Documents\HexCalc\Sys_cas\Common\hexsender\hexsender_code.hex' ... Done.
+Generating mapping: 
+Writing 'C:\Users\zoltanp\Documents\HexCalc\Sys_cas\Common\hexsender\hexsender

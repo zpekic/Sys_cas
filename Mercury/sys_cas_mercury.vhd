@@ -175,6 +175,7 @@ component tapeuart is
            serin : in  STD_LOGIC;
 			  freq_mark: in STD_LOGIC;
 			  freq_space: in STD_LOGIC;
+			  freq_data: out STD_LOGIC;
            audio_left : out  STD_LOGIC;
            audio_right : out  STD_LOGIC;
            adc_clk : in  STD_LOGIC;
@@ -228,7 +229,7 @@ signal freq_uart, freq_uart4: std_logic;
 signal freq24M, dotclk, freq0M75: std_logic;
 signal prescale_baud, prescale_power: integer range 0 to 65535;
 signal freq153600, freq76800, freq38400, freq19200, freq9600, freq4800, freq2400, freq1200, freq600, freq300, freq150: std_logic;		
-signal freq4096, freq2, freq4: std_logic;	
+signal freq4096, freq2, freq4, freq_data: std_logic;	
 
 ---
 signal switch, button: std_logic_vector(7 downto 0);
@@ -376,7 +377,7 @@ with digsel select
 baud_counter: freqcounter port map ( 
 				reset => RESET,
 				clk  => freq2,
-				freq => baudrate_x1,
+				freq => freq_data, --baudrate_x1,
 				bcd => '1',
 				double => '1',
 				limit => X"1200", -- indicate the reliable bps limit
@@ -432,6 +433,7 @@ streamer: tapeuart port map (
 				serin => TXD_TTY,
 				freq_mark => baudrate_x8,
 				freq_space => baudrate_x4,
+				freq_data => freq_data,
 				audio_left => AUDIO_OUT_L,
 				audio_right => AUDIO_OUT_R,
 				adc_clk => freq24M,

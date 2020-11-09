@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <report-views version="2.0" >
  <header>
-  <DateModified>2020-11-06T22:40:19</DateModified>
+  <DateModified>2020-11-08T16:22:57</DateModified>
   <ModuleName>sys_cas_mercury</ModuleName>
-  <SummaryTimeStamp>2020-11-06T20:10:33</SummaryTimeStamp>
+  <SummaryTimeStamp>2020-11-08T15:47:54</SummaryTimeStamp>
   <SavedFilePath>C:/Users/zoltanp/Documents/HexCalc/Sys_cas/Mercury/iseconfig/sys_cas_mercury.xreport</SavedFilePath>
   <ImplementationReportsDirectory>C:/Users/zoltanp/Documents/HexCalc/Sys_cas/Mercury</ImplementationReportsDirectory>
   <DateInitialized>2020-11-01T17:38:36</DateInitialized>

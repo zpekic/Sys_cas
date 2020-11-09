@@ -1,0 +1,244 @@
+//------------------------------------------------------------
+//	HEX file sender Microcode (c) 2020-... zpekic@hotmail.com
+//  Compile with https://github.com/zpekic/MicroCodeCompiler
+//------------------------------------------------------------
+			.code 6, 40, hexsender_code.mif, hexsender_code.cgf, hexsender:hexsender_code.vhd, hexsender_code.hex, 8;
+			.controller hexsender_control_unit.vhd, 4;
+			.mapper 4, 6, hexsender_map.mif, hexsender_map.cgf, hexsender:hexsender_map.vhd, hexsender_map.hex, 1;
+
+ready			.valfield 1 values
+				no,
+				yes
+				default no;
+
+seq_cond:	.if 3 values 
+			true, 			// hard-code to 1
+			start,			// signal to start transmitting
+			len_is_zero,
+			len_gt_deflen,
+			rec_is_one,
+			bus_ack,
+			tty_ready,
+			false			// hard-code to 0
+			default true;
+pad1		.valfield 2 values 0 .. 3 default 0;
+seq_then:	.then 6 values next, repeat, return, fork, @ default next;	// any label
+pad2		.valfield 2 values 0 .. 3 default 0;
+seq_else:	.else 6 values next, repeat, return, fork, @ default next;	// any label
+
+// 	internal registers	
+//	memory address (of byte to be read)		
+ma_current:	.regfield 2 values	// current memory address 
+				same, 
+				zero, 
+				inc, 
+				ma_start
+				default same;
+
+//	data value to read from memory
+data		.regfield 1 values
+				same,
+				bus
+				default same;
+
+//	ASCII char to go to UART, can be one of several constants of data hex char				
+outchar		.regfield 3 values
+				same,
+				colon,
+				space,
+				cr,
+				lf,
+				hex,
+				-, 
+				-
+				default same;
+
+//	16 bits to sum all fields except the starting colon, and then finally generate 2's complement
+checksum		.regfield 3 values
+				same,
+				zero,
+				add_len, 
+				add_hiaddr,
+				add_loaddr,
+				add_rec,
+				add_data,
+				complement_of_2	// == invert bits, add 1, only lower byte is output
+				default same;
+
+//	8 bits for record length, usually 8, 16, 32, but last record can be any length				
+len				.regfield 2 values
+				same,
+				ma_current_minus_ma_end,
+				def_len,
+				dec
+				default same;
+
+// 	record type 00 is data, 01 is end of file
+rec				.regfield 2 values
+				same,
+				zero,
+				one,
+				-
+				default same;
+
+// 	select a nibble for parts of internal registers and generate ASCII character 0 .. 9, A .. F			
+hexsel		.valfield 4 values
+				zero,
+				one,
+				lolen_hi,
+				lolen_lo,
+				hiaddr_hi,
+				hiaddr_lo,
+				loaddr_hi,
+				loaddr_lo,
+				rec_hi,
+				rec_lo,
+				data_hi,
+				data_lo,
+				checksum_hi,
+				checksum_lo,
+				-,
+				f
+				default zero;
+				
+bus_control:	.valfield 2 values
+				nop,				// no memory access
+				-,					// forbid RD without BUSREQ
+				request,			// bus_control(1) is BUSREQ
+				request_and_read	// bus_control(0) is RD
+				default nop;
+				
+tty_send		.valfield 1 values
+				no,
+				yes
+				default yes;
+	
+				
+// useful aliases
+goto:		.alias if false then next else;
+gosub:		.alias if false then next else;	// this works because "jump" pushes return address to stack (1 - 4 level deep only!)
+return:		.alias if false then next else return;
+noop:		.alias if true then next else next;
+
+			.org 0;
+//	First 4 microcode locations can't be used branch destinations
+//	---------------------------------------------------------------------------
+_reset:		ma_current <= zero;  
+
+_reset1:	ma_current <= zero;
+
+_reset2:	ma_current <= zero;
+
+_reset3:	ma_current <= zero; 
+
+			.map 0b????;	// mapper is not used in this design, all locations are pointing here
+waitStart:	ready = yes, ma_current <= ma_start,
+			if start then next else repeat;
+
+nextRow:	checksum <= zero, len <= ma_current_minus_ma_end, rec <= zero;
+
+			if len_is_zero then printEnd else next;
+			
+			if len_gt_deflen then next else lastLine;
+			
+			len <= def_len,		// usually 8 or 16
+			goto printLine;		
+			
+lastLine:	rec <= one, ma_current <= zero;	// prepare final record
+			
+printLine:	outchar <= colon,
+			gosub tty_out;
+			
+			gosub tty_space;
+			
+			outchar <= hex, hexsel = lolen_hi,
+			gosub tty_out;
+
+			outchar <= hex, hexsel = lolen_lo, checksum <= add_len,
+			gosub tty_out;
+
+			gosub tty_space;
+
+			outchar <= hex, hexsel = hiaddr_hi,				
+			gosub tty_out;
+
+			outchar <= hex, hexsel = hiaddr_lo, checksum <= add_hiaddr,
+			gosub tty_out;
+
+			outchar <= hex, hexsel = loaddr_hi,
+			gosub tty_out;
+
+			outchar <= hex, hexsel = loaddr_lo,	checksum <= add_loaddr,
+			gosub tty_out;
+
+			gosub tty_space;
+
+			outchar <= hex, hexsel = rec_hi,
+			gosub tty_out;
+
+			outchar <= hex, hexsel = rec_lo,	checksum <= add_rec,
+			gosub tty_out;
+
+			gosub tty_space;
+			
+			if rec_is_one then printEnd else next;
+			
+nextByte:	if len_is_zero then printChk else next;
+			
+// read byte from memory
+			bus_control = request,
+			if bus_ack then next else repeat;
+			
+			bus_control = request_and_read, data <= bus;
+			
+			outchar <= hex, hexsel = data_hi,
+			gosub tty_out;
+
+			outchar <= hex, hexsel = data_lo,	checksum <= add_data,
+			gosub tty_out;
+
+			gosub tty_space;
+
+			ma_current <= inc, len <= dec, 
+			goto nextByte;
+
+printChk:	checksum <= complement_of_2;
+
+			outchar <= hex, hexsel = checksum_hi,
+			gosub tty_out;
+
+			outchar <= hex, hexsel = checksum_lo,
+			gosub tty_out;
+
+			gosub printCRLF;
+			
+			goto nextRow;
+
+// output end of line FF<cr><lf> and go back to wait for next output start signal
+printEnd:	outchar <= hex, hexsel = f,
+			gosub tty_out;
+			
+			outchar <= hex, hexsel = f,
+			gosub tty_out;
+			
+			gosub printCRLF;
+			
+			goto waitStart;
+		
+printCRLF:	outchar <= cr,
+			gosub tty_out;
+			
+			outchar <= lf,
+			gosub tty_out;
+			
+			return;
+			
+tty_space:	outchar <= space;
+
+tty_out:	if tty_ready then next else repeat;	// wait for previous send to finish
+
+			tty_send = yes,	// single pulse (rising edge) will suffice
+			return;
+			
+
+		

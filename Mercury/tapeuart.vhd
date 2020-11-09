@@ -35,6 +35,7 @@ entity tapeuart is
            serin : in  STD_LOGIC;
 			  freq_mark: in STD_LOGIC;
 			  freq_space: in STD_LOGIC;
+			  freq_data: out STD_LOGIC;
            audio_left : out  STD_LOGIC;
            audio_right : out  STD_LOGIC;
            adc_clk : in  STD_LOGIC;
@@ -60,7 +61,7 @@ signal min: unsigned(9 downto 0) := "1111111111";
 signal max: unsigned(9 downto 0) := "0000000000";
 signal adc_count, adc_old_count, freq_value: std_logic_vector(15 downto 0);
 signal adc_value: std_logic_vector(7 downto 0);
-signal f_in, f_out, f_in_audio: std_logic;
+signal f_out, f_in_audio: std_logic;
 signal tick, delta, prev: unsigned(31 downto 0);
 signal limit0, prev0: unsigned(31 downto 0);
 signal limit1, prev1: unsigned(31 downto 0);
@@ -73,14 +74,13 @@ begin
 --debug <= std_logic_vector(limit0(15 downto 0)) when (debugsel = '0') else std_logic_vector(limit1(15 downto 0));
 debug <= std_logic_vector("000000" & min) when (debugsel = '0') else std_logic_vector("000000" & max);
 
--- output path
+-- output path (towards the tape)
 f_out <= freq_space when (serin = '0') else freq_mark;	-- always output to audio
 audio_left  <= f_out; 
 audio_right <= f_out; 
 
--- input path
-f_in <= f_in_audio;
-
+-- input path (from the tape)
+freq_data <= f_in_audio;
 serout <= not (txd);
 
 detect0 <= '1' when (delta > (limit0 - 15)) else '0'; 
@@ -89,9 +89,9 @@ detect1 <= '1' when (delta < (limit1 + 15)) else '0';
 ntxd <= not (detect0 or txd);
 txd <= not (detect1 or ntxd);
 
-on_f_in: process(f_in, tick, prev)
+on_f_in_audio: process(f_in_audio, tick, prev)
 begin
-	if (rising_edge(f_in)) then
+	if (rising_edge(f_in_audio)) then
 		delta <= tick - prev;
 		prev <= tick;
 	end if;
