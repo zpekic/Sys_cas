@@ -377,7 +377,7 @@ with digsel select
 baud_counter: freqcounter port map ( 
 				reset => RESET,
 				clk  => freq2,
-				freq => freq_data, --baudrate_x1,
+				freq => baudrate_x1,
 				bcd => '1',
 				double => '1',
 				limit => X"1200", -- indicate the reliable bps limit

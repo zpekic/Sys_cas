@@ -145,11 +145,13 @@ on_adc_done : process (adc_done, f_in_audio)
 begin
  if (rising_edge(adc_done)) then
 		if (f_in_audio = '0') then
-			if (unsigned(adc_dout) > "00" & X"12") then -- 24
+			if (unsigned(adc_dout) > "00" & X"14") then -- 12
+--			if (unsigned(adc_dout) > (min + 20)) then -- 24
 				f_in_audio <= '1';
 			end if;
 		else
-			if (unsigned(adc_dout) < "00" & X"12") then -- 24
+			if (unsigned(adc_dout) < "00" & X"12") then -- 12
+--			if (unsigned(adc_dout) < (min + 20)) then -- 24
 				f_in_audio <= '0';
 			end if;
 		end if;
