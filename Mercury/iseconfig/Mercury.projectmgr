@@ -13,13 +13,13 @@
          <ClosedNode>/sys_cas_mercury - Structural C:|Users|zoltanp|Documents|HexCalc|Sys_cas|Mercury|sys_cas_mercury.vhd/debounce_sw - debouncer8channel - Behavioral</ClosedNode>
       </ClosedNodes>
       <SelectedItems>
-         <SelectedItem>sys_cas_mercury - Structural (C:/Users/zoltanp/Documents/HexCalc/Sys_cas/Mercury/sys_cas_mercury.vhd)</SelectedItem>
+         <SelectedItem>HexSender - Behavioral (C:/Users/zoltanp/Documents/HexCalc/Sys_cas/common/hexsender/HexSender.vhd)</SelectedItem>
       </SelectedItems>
       <ScrollbarPosition orientation="vertical" >0</ScrollbarPosition>
       <ScrollbarPosition orientation="horizontal" >0</ScrollbarPosition>
       <ViewHeaderState orientation="horizontal" >000000ff00000000000000010000000100000000000000000000000000000000020200000001000000010000006400000339000000020000000000000000000000000200000064ffffffff000000810000000300000002000003390000000100000003000000000000000100000003</ViewHeaderState>
       <UserChangedColumnWidths orientation="horizontal" >true</UserChangedColumnWidths>
-      <CurrentItem>sys_cas_mercury - Structural (C:/Users/zoltanp/Documents/HexCalc/Sys_cas/Mercury/sys_cas_mercury.vhd)</CurrentItem>
+      <CurrentItem>HexSender - Behavioral (C:/Users/zoltanp/Documents/HexCalc/Sys_cas/common/hexsender/HexSender.vhd)</CurrentItem>
    </ItemView>
    <ItemView engineview="SynthesisOnly" sourcetype="DESUT_VHDL_ARCHITECTURE" guiview="Process" >
       <ClosedNodes>
@@ -35,7 +35,7 @@
       </SelectedItems>
       <ScrollbarPosition orientation="vertical" >0</ScrollbarPosition>
       <ScrollbarPosition orientation="horizontal" >0</ScrollbarPosition>
-      <ViewHeaderState orientation="horizontal" >000000ff0000000000000001000000010000000000000000000000000000000000000000000000017d000000010000000100000000000000000000000064ffffffff0000008100000000000000010000017d0000000100000000</ViewHeaderState>
+      <ViewHeaderState orientation="horizontal" >000000ff00000000000000010000000100000000000000000000000000000000000000000000000168000000010000000100000000000000000000000064ffffffff000000810000000000000001000001680000000100000000</ViewHeaderState>
       <UserChangedColumnWidths orientation="horizontal" >false</UserChangedColumnWidths>
       <CurrentItem></CurrentItem>
    </ItemView>
@@ -55,13 +55,13 @@
          <ClosedNodesVersion>1</ClosedNodesVersion>
       </ClosedNodes>
       <SelectedItems>
-         <SelectedItem>C:\Users\zoltanp\Documents\HexCalc\Sys_cas\Common\hexsender\hexsender_code.vhd</SelectedItem>
+         <SelectedItem>C:\Users\zoltanp\Documents\HexCalc\Sys_cas\Common\hexsender\hexsender_control_unit.vhd</SelectedItem>
       </SelectedItems>
       <ScrollbarPosition orientation="vertical" >0</ScrollbarPosition>
       <ScrollbarPosition orientation="horizontal" >0</ScrollbarPosition>
-      <ViewHeaderState orientation="horizontal" >000000ff000000000000000100000000000000000100000000000000000000000000000000000000d8000000010001000100000000000000000000000064ffffffff000000810000000000000001000000d80000000100000000</ViewHeaderState>
+      <ViewHeaderState orientation="horizontal" >000000ff00000000000000010000000000000000010000000000000000000000000000000000000155000000010001000100000000000000000000000064ffffffff000000810000000000000001000001550000000100000000</ViewHeaderState>
       <UserChangedColumnWidths orientation="horizontal" >false</UserChangedColumnWidths>
-      <CurrentItem>C:\Users\zoltanp\Documents\HexCalc\Sys_cas\Common\hexsender\hexsender_code.vhd</CurrentItem>
+      <CurrentItem>C:\Users\zoltanp\Documents\HexCalc\Sys_cas\Common\hexsender\hexsender_control_unit.vhd</CurrentItem>
    </ItemView>
    <ItemView engineview="SynthesisOnly" sourcetype="" guiview="Process" >
       <ClosedNodes>
