@@ -111,7 +111,7 @@ bus_control:	.valfield 2 values
 tty_send		.valfield 1 values
 				no,
 				yes
-				default yes;
+				default no;
 	
 				
 // useful aliases
