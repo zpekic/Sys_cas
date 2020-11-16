@@ -1,5 +1,5 @@
 --------------------------------------------------------
--- mcc V0.9.1114 - Custom microcode compiler (c)2020-... 
+-- mcc V0.9.1115 - Custom microcode compiler (c)2020-... 
 --    https://github.com/zpekic/MicroCodeCompiler
 --------------------------------------------------------
 -- Auto-generated file, do not modify. To customize, create 'code_template.vhd' file in mcc.exe folder
@@ -120,7 +120,7 @@ constant ma_current_ma_start: 	std_logic_vector(1 downto 0) := "11";
 --			when others =>
 --				null;
 --		end case;
--- end;
+-- end if;
 -- end process;
 ---- End boilerplate code
 
@@ -137,7 +137,7 @@ constant data_bus: 	std_logic := '1';
 --	    if (hexsender_data = data_bus) then
 --		    data <= bus;
 --	    end if;
--- end;
+-- end if;
 -- end process;
 ---- End boilerplate code
 
@@ -173,7 +173,7 @@ constant outchar_hex: 	std_logic_vector(2 downto 0) := "101";
 --			when others =>
 --				null;
 --		end case;
--- end;
+-- end if;
 -- end process;
 ---- End boilerplate code
 
@@ -209,11 +209,11 @@ constant checksum_complement_of_2: 	std_logic_vector(2 downto 0) := "111";
 --			when checksum_add_data =>
 --				checksum <= add_data;
 --			when checksum_complement_of_2 =>
---				checksum <= std_logic_vector(unsigned(checksum xor (others => '1')) + 1);
+--				checksum <= std_logic_vector(unsigned(not checksum) + 1);
 --			when others =>
 --				null;
 --		end case;
--- end;
+-- end if;
 -- end process;
 ---- End boilerplate code
 
@@ -241,7 +241,7 @@ constant len_dec: 	std_logic_vector(1 downto 0) := "11";
 --			when others =>
 --				null;
 --		end case;
--- end;
+-- end if;
 -- end process;
 ---- End boilerplate code
 
@@ -267,7 +267,7 @@ constant rec_one: 	std_logic_vector(1 downto 0) := "10";
 --			when others =>
 --				null;
 --		end case;
--- end;
+-- end if;
 -- end process;
 ---- End boilerplate code
 
@@ -293,22 +293,22 @@ constant hexsel_checksum_lo: 	std_logic_vector(3 downto 0) := X"D";
 constant hexsel_f: 	std_logic_vector(3 downto 0) := X"F";
 ---- Start boilerplate code (use with utmost caution!)
 -- with hexsender_hexsel select hexsel <=
---      (others => '0') when hexsender_zero, -- default value
---      one when hexsender_one,
---      lolen_hi when hexsender_lolen_hi,
---      lolen_lo when hexsender_lolen_lo,
---      hiaddr_hi when hexsender_hiaddr_hi,
---      hiaddr_lo when hexsender_hiaddr_lo,
---      loaddr_hi when hexsender_loaddr_hi,
---      loaddr_lo when hexsender_loaddr_lo,
---      rec_hi when hexsender_rec_hi,
---      rec_lo when hexsender_rec_lo,
---      data_hi when hexsender_data_hi,
---      data_lo when hexsender_data_lo,
---      checksum_hi when hexsender_checksum_hi,
---      checksum_lo when hexsender_checksum_lo,
---      f when hexsender_f,
---      null when others;
+--      (others => '0') when hexsel_zero, -- default value
+--      one when hexsel_one,
+--      lolen_hi when hexsel_lolen_hi,
+--      lolen_lo when hexsel_lolen_lo,
+--      hiaddr_hi when hexsel_hiaddr_hi,
+--      hiaddr_lo when hexsel_hiaddr_lo,
+--      loaddr_hi when hexsel_loaddr_hi,
+--      loaddr_lo when hexsel_loaddr_lo,
+--      rec_hi when hexsel_rec_hi,
+--      rec_lo when hexsel_rec_lo,
+--      data_hi when hexsel_data_hi,
+--      data_lo when hexsel_data_lo,
+--      checksum_hi when hexsel_checksum_hi,
+--      checksum_lo when hexsel_checksum_lo,
+--      f when hexsel_f,
+--      (others => '0') when others;
 ---- End boilerplate code
 
 --
@@ -321,10 +321,10 @@ constant bus_control_request: 	std_logic_vector(1 downto 0) := "10";
 constant bus_control_request_and_read: 	std_logic_vector(1 downto 0) := "11";
 ---- Start boilerplate code (use with utmost caution!)
 -- with hexsender_bus_control select bus_control <=
---      nop when hexsender_nop, -- default value
---      request when hexsender_request,
---      request_and_read when hexsender_request_and_read,
---      null when others;
+--      nop when bus_control_nop, -- default value
+--      request when bus_control_request,
+--      request_and_read when bus_control_request_and_read,
+--      nop when others;
 ---- End boilerplate code
 
 --

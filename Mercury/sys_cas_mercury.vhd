@@ -197,8 +197,26 @@ component debouncer8channel is
            signal_debounced : out STD_LOGIC_VECTOR (7 downto 0));
 end component;
 
+component HexSender is
+    Port ( clk : in  STD_LOGIC;
+           reset : in  STD_LOGIC;
+			  start : in  STD_LOGIC;
+			  ready: out STD_LOGIC;
+           ma_start : in  STD_LOGIC_VECTOR (7 downto 0);
+           ma_end : in  STD_LOGIC_VECTOR (7 downto 0);
+           rec_sel : in  STD_LOGIC_VECTOR (1 downto 0);
+           tty_ready : in  STD_LOGIC;
+           tty_send : out  STD_LOGIC;
+           tty_out : out  STD_LOGIC_VECTOR(7 downto 0);
+           bus_req : out  STD_LOGIC;
+           bus_rd : out  STD_LOGIC;
+           bus_ack : in  STD_LOGIC;
+           bus_data : in  STD_LOGIC_VECTOR (7 downto 0);
+           bus_address : out  STD_LOGIC_VECTOR (15 downto 0));
+end component;
+
 type rom16x8 is array (0 to 7) of std_logic_vector(15 downto 0);
-signal display_config: rom16x8 := (
+constant display_config: rom16x8 := (
 -- 0 X X -- 8 bits 1 stop bit (9 bit frame)
 	X"8001",
 	X"8001",
@@ -245,6 +263,15 @@ alias nRTS: std_logic is PMOD(4); 	-- out, active low
 alias RXD_TTY: std_logic is PMOD(5);		-- in
 alias TXD_TTY: std_logic is PMOD(6);		-- out
 alias nCTS: std_logic is PMOD(7);	-- in, active low
+
+-- TTY
+signal tty_ready, tty_send: std_logic;
+signal tty_out: std_logic_vector(7 downto 0);
+
+-- data bus
+signal fake_data: std_logic_vector(7 downto 0);
+signal fake_address: std_logic_vector(15 downto 0);
+
 
 begin
    
@@ -429,7 +456,7 @@ with switch(7 downto 5) select
 
 streamer: tapeuart port map ( 
 				reset => RESET,
-				serout => RXD_TTY,
+				serout => open, --RXD_TTY,
 				serin => TXD_TTY,
 				freq_mark => baudrate_x8,
 				freq_space => baudrate_x4,
@@ -445,6 +472,38 @@ streamer: tapeuart port map (
 				----
 				debugsel => switch(0),
 				debug => display_streamer
+			);
+
+
+hexdumper: HexSender port map ( 
+				clk => baudrate_x4,
+				reset => reset,
+				start => button(3),
+				ready => open,
+				ma_start => X"00", 	-- from 0x0000
+				ma_end => X"01",		-- to 0x00FF
+				rec_sel => "11", 		-- 16 bytes
+				tty_ready => tty_ready,
+				tty_send => tty_send,
+				tty_out => tty_out,
+				bus_req => open,
+				bus_rd => open,
+				bus_ack => '1',
+				bus_data => fake_data,
+				bus_address => fake_address
+			);
+
+fake_data <= switch(7 downto 0) when (fake_address(0) = '0') else fake_address(7 downto 0);
+
+tty: uart_sender Port map (  
+				tx_clk => baudrate_x1,
+				reset  => reset,
+				tx  => RXD_TTY,
+				ready => tty_ready,
+				mode =>  switch(4 downto 2),
+				send => tty_send, 
+				enable => '1',
+				data => tty_out
 			);
 
 --
