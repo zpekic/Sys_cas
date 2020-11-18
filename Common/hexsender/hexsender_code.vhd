@@ -218,11 +218,11 @@ constant checksum_complement_of_2: 	std_logic_vector(2 downto 0) := "111";
 ---- End boilerplate code
 
 --
--- L0069.len: .regfield 2 values same, ma_current_minus_ma_end, def_len, dec default same
+-- L0069.len: .regfield 2 values same, ma_end_minus_ma_current, def_len, dec default same
 --
 alias hexsender_len: 	std_logic_vector(1 downto 0) is hexsender_uinstruction(10 downto 9);
 constant len_same: 	std_logic_vector(1 downto 0) := "00";
-constant len_ma_current_minus_ma_end: 	std_logic_vector(1 downto 0) := "01";
+constant len_ma_end_minus_ma_current: 	std_logic_vector(1 downto 0) := "01";
 constant len_def_len: 	std_logic_vector(1 downto 0) := "10";
 constant len_dec: 	std_logic_vector(1 downto 0) := "11";
 ---- Start boilerplate code (use with utmost caution!)
@@ -232,8 +232,8 @@ constant len_dec: 	std_logic_vector(1 downto 0) := "11";
 --		case hexsender_len is
 ----			when len_same =>
 ----				len <= len;
---			when len_ma_current_minus_ma_end =>
---				len <= ma_current_minus_ma_end;
+--			when len_ma_end_minus_ma_current =>
+--				len <= ma_end_minus_ma_current;
 --			when len_def_len =>
 --				len <= def_len;
 --			when len_dec =>
@@ -361,17 +361,17 @@ constant hexsender_microcode: hexsender_code_memory := (
 --  ready = 1, if (001) pad1 = 00, then 000000 pad2 = 00, else 000001, ma_current <= 11, data <= 0, outchar <= 000, checksum <= 000, len <= 00, rec <= 00, hexsel = 0000, bus_control = 00, tty_send = 0;
 4 => '1' & O"1" & "00" & O"00" & "00" & O"01" & "11" & '0' & O"0" & O"0" & "00" & "00" & X"0" & "00" & '0',
 
--- L0138@0005.nextRow:  checksum <= zero, len <= ma_current_minus_ma_end, rec <= zero
+-- L0138@0005.nextRow:  checksum <= zero, len <= ma_end_minus_ma_current, rec <= zero
 --  ready = 0, if (000) pad1 = 00, then 000000 pad2 = 00, else 000000, ma_current <= 00, data <= 0, outchar <= 000, checksum <= 001, len <= 01, rec <= 01, hexsel = 0000, bus_control = 00, tty_send = 0;
 5 => '0' & O"0" & "00" & O"00" & "00" & O"00" & "00" & '0' & O"0" & O"1" & "01" & "01" & X"0" & "00" & '0',
 
--- L0140@0006.  if len_is_zero then printEnd else next
---  ready = 0, if (010) pad1 = 00, then 100100 pad2 = 00, else 000000, ma_current <= 00, data <= 0, outchar <= 000, checksum <= 000, len <= 00, rec <= 00, hexsel = 0000, bus_control = 00, tty_send = 0;
-6 => '0' & O"2" & "00" & O"44" & "00" & O"00" & "00" & '0' & O"0" & O"0" & "00" & "00" & X"0" & "00" & '0',
+-- L0140@0006.  if len_is_zero then lastLine else next
+--  ready = 0, if (010) pad1 = 00, then 001001 pad2 = 00, else 000000, ma_current <= 00, data <= 0, outchar <= 000, checksum <= 000, len <= 00, rec <= 00, hexsel = 0000, bus_control = 00, tty_send = 0;
+6 => '0' & O"2" & "00" & O"11" & "00" & O"00" & "00" & '0' & O"0" & O"0" & "00" & "00" & X"0" & "00" & '0',
 
--- L0142@0007.  if len_gt_deflen then next else lastLine
---  ready = 0, if (011) pad1 = 00, then 000000 pad2 = 00, else 001001, ma_current <= 00, data <= 0, outchar <= 000, checksum <= 000, len <= 00, rec <= 00, hexsel = 0000, bus_control = 00, tty_send = 0;
-7 => '0' & O"3" & "00" & O"00" & "00" & O"11" & "00" & '0' & O"0" & O"0" & "00" & "00" & X"0" & "00" & '0',
+-- L0142@0007.  if len_gt_deflen then next else printLine
+--  ready = 0, if (011) pad1 = 00, then 000000 pad2 = 00, else 001010, ma_current <= 00, data <= 0, outchar <= 000, checksum <= 000, len <= 00, rec <= 00, hexsel = 0000, bus_control = 00, tty_send = 0;
+7 => '0' & O"3" & "00" & O"00" & "00" & O"12" & "00" & '0' & O"0" & O"0" & "00" & "00" & X"0" & "00" & '0',
 
 -- L0144@0008.  len <= def_len, if false then next else printLine
 --  ready = 0, if (111) pad1 = 00, then 000000 pad2 = 00, else 001010, ma_current <= 00, data <= 0, outchar <= 000, checksum <= 000, len <= 10, rec <= 00, hexsel = 0000, bus_control = 00, tty_send = 0;
@@ -521,12 +521,24 @@ constant hexsender_microcode: hexsender_code_memory := (
 --  ready = 0, if (110) pad1 = 00, then 000000 pad2 = 00, else 000001, ma_current <= 00, data <= 0, outchar <= 000, checksum <= 000, len <= 00, rec <= 00, hexsel = 0000, bus_control = 00, tty_send = 0;
 44 => '0' & O"6" & "00" & O"00" & "00" & O"01" & "00" & '0' & O"0" & O"0" & "00" & "00" & X"0" & "00" & '0',
 
--- L0240@002D.  tty_send = yes, if false then next else return
---  ready = 0, if (111) pad1 = 00, then 000000 pad2 = 00, else 000010, ma_current <= 00, data <= 0, outchar <= 000, checksum <= 000, len <= 00, rec <= 00, hexsel = 0000, bus_control = 00, tty_send = 1;
-45 => '0' & O"7" & "00" & O"00" & "00" & O"02" & "00" & '0' & O"0" & O"0" & "00" & "00" & X"0" & "00" & '1',
+-- L0240@002D.  tty_send = yes
+--  ready = 0, if (000) pad1 = 00, then 000000 pad2 = 00, else 000000, ma_current <= 00, data <= 0, outchar <= 000, checksum <= 000, len <= 00, rec <= 00, hexsel = 0000, bus_control = 00, tty_send = 1;
+45 => '0' & O"0" & "00" & O"00" & "00" & O"00" & "00" & '0' & O"0" & O"0" & "00" & "00" & X"0" & "00" & '1',
 
--- 18 location(s) in following ranges will be filled with default value
--- 002E .. 003F
+-- L0242@002E.  if true then next else next
+--  ready = 0, if (000) pad1 = 00, then 000000 pad2 = 00, else 000000, ma_current <= 00, data <= 0, outchar <= 000, checksum <= 000, len <= 00, rec <= 00, hexsel = 0000, bus_control = 00, tty_send = 0;
+46 => '0' & O"0" & "00" & O"00" & "00" & O"00" & "00" & '0' & O"0" & O"0" & "00" & "00" & X"0" & "00" & '0',
+
+-- L0244@002F.  if true then next else next
+--  ready = 0, if (000) pad1 = 00, then 000000 pad2 = 00, else 000000, ma_current <= 00, data <= 0, outchar <= 000, checksum <= 000, len <= 00, rec <= 00, hexsel = 0000, bus_control = 00, tty_send = 0;
+47 => '0' & O"0" & "00" & O"00" & "00" & O"00" & "00" & '0' & O"0" & O"0" & "00" & "00" & X"0" & "00" & '0',
+
+-- L0246@0030.  if false then next else return
+--  ready = 0, if (111) pad1 = 00, then 000000 pad2 = 00, else 000010, ma_current <= 00, data <= 0, outchar <= 000, checksum <= 000, len <= 00, rec <= 00, hexsel = 0000, bus_control = 00, tty_send = 0;
+48 => '0' & O"7" & "00" & O"00" & "00" & O"02" & "00" & '0' & O"0" & O"0" & "00" & "00" & X"0" & "00" & '0',
+
+-- 15 location(s) in following ranges will be filled with default value
+-- 0031 .. 003F
 
 others => '0' & O"0" & "00" & O"00" & "00" & O"00" & "00" & '0' & O"0" & O"0" & "00" & "00" & X"0" & "00" & '0'
 );

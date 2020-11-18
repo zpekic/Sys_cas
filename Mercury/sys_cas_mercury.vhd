@@ -376,8 +376,8 @@ powergen: sn74hc4040 port map (
 	);
 
 -- use 4 digit seven segment display on base board for some basic info
-display <= display_host when (switch(1) = '0') else display_streamer;
-display_host <= display_baudrate when (switch(0) = '0') else  display_config(to_integer(unsigned(switch(4 downto 2))));
+--display <= display_host when (switch(1) = '0') else display_streamer;
+--display_host <= display_baudrate when (switch(0) = '0') else  display_config(to_integer(unsigned(switch(4 downto 2))));
 				
 leds: fourdigitsevensegled Port map ( 
 			-- inputs
@@ -482,7 +482,7 @@ hexdumper: HexSender port map (
 				ready => open,
 				ma_start => X"00", 	-- from 0x0000
 				ma_end => X"01",		-- to 0x00FF
-				rec_sel => "11", 		-- 16 bytes
+				rec_sel => switch(1 downto 0),
 				tty_ready => tty_ready,
 				tty_send => tty_send,
 				tty_out => tty_out,
@@ -506,6 +506,12 @@ tty: uart_sender Port map (
 				data => tty_out
 			);
 
+on_tty_send: process(tty_out, tty_send)
+begin
+	if (rising_edge(tty_send)) then
+		display <= display(7 downto 0) & tty_out;
+	end if;
+end process;
 --
 --serin: uart_receiver Port map ( 
 --				rx_clk4 => baudrate_x4,

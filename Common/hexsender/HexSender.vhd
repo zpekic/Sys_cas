@@ -105,6 +105,9 @@ signal ui_address : STD_LOGIC_VECTOR (CODE_ADDRESS_WIDTH - 1 downto 0);
 signal def_len, checksum, ma_current, len: std_logic_vector(15 downto 0);
 signal data, outchar, rec: std_logic_vector(7 downto 0);
 
+-- 16 bit adder to generate checksum
+signal y_sum16, a_sum16, b_sum16: std_logic_vector(15 downto 0);
+
 -- other signals
 signal rec_is_one, len_is_zero, len_gt_deflen: std_logic;
 signal hexsel: std_logic_vector(3 downto 0);
@@ -214,28 +217,28 @@ end process;
 update_checksum: process(clk, hexsender_checksum)
 begin
 if (rising_edge(clk)) then
-	case hexsender_checksum is
---			when checksum_same =>
---				checksum <= checksum;
-		when checksum_zero =>
-			checksum <= (others => '0');
-		when checksum_add_len =>
-			checksum <= checksum; --std_logic_vector(unsigned(checksum) + unsigned(X"00" & len));
-		when checksum_add_hiaddr =>
-			checksum <= checksum; --std_logic_vector(unsigned(checksum) + unsigned(X"00" & ma_current(15 downto 8)));
-		when checksum_add_loaddr =>
-			checksum <= checksum; --std_logic_vector(unsigned(checksum) + unsigned(X"00" & ma_current(7 downto 0)));
-		when checksum_add_rec =>
-			checksum <= checksum; --std_logic_vector(unsigned(checksum) + unsigned(X"00" & rec));
-		when checksum_add_data =>
-			checksum <= checksum; --std_logic_vector(unsigned(checksum) + unsigned(X"00" & data));
-		when checksum_complement_of_2 =>
-			checksum <= std_logic_vector(unsigned(not checksum) + 1);
-		when others =>
-			null;
-	end case;
+	if (hexsender_checksum /= checksum_same) then
+		checksum <= y_sum16;
+	end if;
 end if;
 end process;
+
+-- 16 bit adder to generate new checksum
+with hexsender_checksum select a_sum16 <=
+		(others => '0') when checksum_zero,
+		not checksum when checksum_complement_of_2,
+		checksum when others;
+
+with hexsender_checksum select b_sum16 <=
+		len when checksum_add_len,
+		X"00" & ma_current(15 downto 8) when checksum_add_hiaddr,
+		X"00" & ma_current(7 downto 0) when checksum_add_loaddr,
+		X"00" & rec when checksum_add_rec,
+		X"00" & data when checksum_add_data,
+		X"0001" when checksum_complement_of_2,
+		(others => '0') when others;
+
+y_sum16 <= std_logic_vector(unsigned(a_sum16) + unsigned(b_sum16));
 
 -- 16-bit len register hold the difference between last address and current one 
 update_len: process(clk, hexsender_len)
@@ -244,8 +247,8 @@ if (rising_edge(clk)) then
 	case hexsender_len is
 --			when len_same =>
 --				len <= len;
-		when len_ma_current_minus_ma_end =>
-			len <= std_logic_vector(unsigned(ma_current) - unsigned(ma_end_ext));
+		when len_ma_end_minus_ma_current =>
+			len <= std_logic_vector(unsigned(ma_end_ext) - unsigned(ma_current));
 		when len_def_len =>
 			len <= def_len;
 		when len_dec =>

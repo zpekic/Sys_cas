@@ -68,7 +68,7 @@ checksum		.regfield 3 values
 //	8 bits for record length, usually 8, 16, 32, but last record can be any length				
 len				.regfield 2 values
 				same,
-				ma_current_minus_ma_end,
+				ma_end_minus_ma_current,
 				def_len,
 				dec
 				default same;
@@ -117,7 +117,7 @@ tty_send		.valfield 1 values
 // useful aliases
 goto:		.alias if false then next else;
 gosub:		.alias if false then next else;	// this works because "jump" pushes return address to stack (1 - 4 level deep only!)
-return:		.alias if false then next else return;
+ret:		.alias if false then next else return;
 noop:		.alias if true then next else next;
 
 			.org 0;
@@ -135,11 +135,11 @@ _reset3:	ma_current <= zero;
 waitStart:	ready = yes, ma_current <= ma_start,
 			if start then next else repeat;
 
-nextRow:	checksum <= zero, len <= ma_current_minus_ma_end, rec <= zero;
+nextRow:	checksum <= zero, len <= ma_end_minus_ma_current, rec <= zero;
 
-			if len_is_zero then printEnd else next;
+			if len_is_zero then lastLine else next;
 			
-			if len_gt_deflen then next else lastLine;
+			if len_gt_deflen then next else printLine;
 			
 			len <= def_len,		// usually 8 or 16
 			goto printLine;		
@@ -231,14 +231,19 @@ printCRLF:	outchar <= cr,
 			outchar <= lf,
 			gosub tty_out;
 			
-			return;
+			ret;
 			
 tty_space:	outchar <= space;
 
 tty_out:	if tty_ready then next else repeat;	// wait for previous send to finish
 
-			tty_send = yes,	// single pulse (rising edge) will suffice
-			return;
+			tty_send = yes; // single pulse (rising edge) will suffice
+			
+			noop;
+			
+			noop;
+			
+			ret;
 			
 
 		
