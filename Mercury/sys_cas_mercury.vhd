@@ -162,6 +162,8 @@ component uart_sender is
 	 Port (  tx_clk  : in  STD_LOGIC;
 				reset  : in  STD_LOGIC;
 				tx  : out  STD_LOGIC;
+				rts: out STD_LOGIC;
+				cts: in STD_LOGIC;
 				ready: out STD_LOGIC;
 				mode : in  STD_LOGIC_VECTOR (2 downto 0); 
 				send : in  STD_LOGIC; 
@@ -493,12 +495,15 @@ hexdumper: HexSender port map (
 				bus_address => fake_address
 			);
 
-fake_data <= switch(7 downto 0) when (fake_address(0) = '0') else fake_address(7 downto 0);
+--fake_data <= switch(7 downto 0) when (fake_address(0) = '0') else fake_address(7 downto 0);
+fake_data <= fake_address(7 downto 0);
 
 tty: uart_sender Port map (  
 				tx_clk => baudrate_x1,
 				reset  => reset,
 				tx  => RXD_TTY,
+				rts => open,
+				cts => '1',
 				ready => tty_ready,
 				mode =>  switch(4 downto 2),
 				send => tty_send, 

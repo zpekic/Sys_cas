@@ -521,24 +521,12 @@ constant hexsender_microcode: hexsender_code_memory := (
 --  ready = 0, if (110) pad1 = 00, then 000000 pad2 = 00, else 000001, ma_current <= 00, data <= 0, outchar <= 000, checksum <= 000, len <= 00, rec <= 00, hexsel = 0000, bus_control = 00, tty_send = 0;
 44 => '0' & O"6" & "00" & O"00" & "00" & O"01" & "00" & '0' & O"0" & O"0" & "00" & "00" & X"0" & "00" & '0',
 
--- L0240@002D.  tty_send = yes
---  ready = 0, if (000) pad1 = 00, then 000000 pad2 = 00, else 000000, ma_current <= 00, data <= 0, outchar <= 000, checksum <= 000, len <= 00, rec <= 00, hexsel = 0000, bus_control = 00, tty_send = 1;
-45 => '0' & O"0" & "00" & O"00" & "00" & O"00" & "00" & '0' & O"0" & O"0" & "00" & "00" & X"0" & "00" & '1',
+-- L0240@002D.  tty_send = yes, if tty_ready then repeat else return
+--  ready = 0, if (110) pad1 = 00, then 000001 pad2 = 00, else 000010, ma_current <= 00, data <= 0, outchar <= 000, checksum <= 000, len <= 00, rec <= 00, hexsel = 0000, bus_control = 00, tty_send = 1;
+45 => '0' & O"6" & "00" & O"01" & "00" & O"02" & "00" & '0' & O"0" & O"0" & "00" & "00" & X"0" & "00" & '1',
 
--- L0242@002E.  if true then next else next
---  ready = 0, if (000) pad1 = 00, then 000000 pad2 = 00, else 000000, ma_current <= 00, data <= 0, outchar <= 000, checksum <= 000, len <= 00, rec <= 00, hexsel = 0000, bus_control = 00, tty_send = 0;
-46 => '0' & O"0" & "00" & O"00" & "00" & O"00" & "00" & '0' & O"0" & O"0" & "00" & "00" & X"0" & "00" & '0',
-
--- L0244@002F.  if true then next else next
---  ready = 0, if (000) pad1 = 00, then 000000 pad2 = 00, else 000000, ma_current <= 00, data <= 0, outchar <= 000, checksum <= 000, len <= 00, rec <= 00, hexsel = 0000, bus_control = 00, tty_send = 0;
-47 => '0' & O"0" & "00" & O"00" & "00" & O"00" & "00" & '0' & O"0" & O"0" & "00" & "00" & X"0" & "00" & '0',
-
--- L0246@0030.  if false then next else return
---  ready = 0, if (111) pad1 = 00, then 000000 pad2 = 00, else 000010, ma_current <= 00, data <= 0, outchar <= 000, checksum <= 000, len <= 00, rec <= 00, hexsel = 0000, bus_control = 00, tty_send = 0;
-48 => '0' & O"7" & "00" & O"00" & "00" & O"02" & "00" & '0' & O"0" & O"0" & "00" & "00" & X"0" & "00" & '0',
-
--- 15 location(s) in following ranges will be filled with default value
--- 0031 .. 003F
+-- 18 location(s) in following ranges will be filled with default value
+-- 002E .. 003F
 
 others => '0' & O"0" & "00" & O"00" & "00" & O"00" & "00" & '0' & O"0" & O"0" & "00" & "00" & X"0" & "00" & '0'
 );

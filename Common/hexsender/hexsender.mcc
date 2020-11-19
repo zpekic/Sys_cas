@@ -237,13 +237,14 @@ tty_space:	outchar <= space;
 
 tty_out:	if tty_ready then next else repeat;	// wait for previous send to finish
 
-			tty_send = yes; // single pulse (rising edge) will suffice
+			tty_send = yes, // single pulse (rising edge) will suffice
+			if tty_ready then repeat else return;
 			
-			noop;
+//			noop;
 			
-			noop;
+//			noop;
 			
-			ret;
+//			ret;
 			
 
 		

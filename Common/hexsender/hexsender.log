@@ -90,16 +90,7 @@ L0231@0029.  outchar <= lf, if false then next else tty_out
 Line 234: resolved aliases:  ret
 L0234@002A.  if false then next else return
 
-Line 242: resolved aliases:  noop
-L0242@002E.  if true then next else next
-
-Line 244: resolved aliases:  noop
-L0244@002F.  if true then next else next
-
-Line 246: resolved aliases:  ret
-L0246@0030.  if false then next else return
-
-Success: pass 1 249 line(s) read, 73 statement(s) parsed.
+Success: pass 1 250 line(s) read, 70 statement(s) parsed.
 Compiling hexsender.mcc, pass 2 out of 2.
 Field 'ready' 39 .. 39
 Field 'seq_cond' 38 .. 36
@@ -177,12 +168,15 @@ Info: line 5 - code[0029] <= '0_111_00_000000_00_101100_00_0_100_000_00_00_0000_
 Info: line 5 - code[002A] <= '0_111_00_000000_00_000010_00_0_000_000_00_00_0000_00_0'
 Info: line 5 - code[002B] <= '0_000_00_000000_00_000000_00_0_010_000_00_00_0000_00_0'
 Info: line 5 - code[002C] <= '0_110_00_000000_00_000001_00_0_000_000_00_00_0000_00_0'
-Info: line 5 - code[002D] <= '0_000_00_000000_00_000000_00_0_000_000_00_00_0000_00_1'
-Info: line 5 - code[002E] <= '0_000_00_000000_00_000000_00_0_000_000_00_00_0000_00_0'
-Info: line 5 - code[002F] <= '0_000_00_000000_00_000000_00_0_000_000_00_00_0000_00_0'
-Info: line 5 - code[0030] <= '0_111_00_000000_00_000010_00_0_000_000_00_00_0000_00_0'
+Info: line 5 - code[002D] <= '0_110_00_000001_00_000010_00_0_000_000_00_00_0000_00_1'
 Generating code: 
-Warning in line 5: found 15 uninitialized locations:
-0031 .. 003F
+Warning in line 5: found 18 uninitialized locations:
+002E .. 003F
 
-Writing 'C:\Users\zoltanp\Documents\HexCalc\Sys_cas\Common\he
+Writing 'C:\Users\zoltanp\Documents\HexCalc\Sys_cas\Common\hexsender\hexsender_code.mif' ... Done.
+Writing 'C:\Users\zoltanp\Documents\HexCalc\Sys_cas\Common\hexsender\hexsender_code.cgf' ... Done.
+Generating code 'C:\Users\zoltanp\Documents\HexCalc\Sys_cas\Common\hexsender\hexsender_code.vhd' ... Done.
+Writing 'C:\Users\zoltanp\Documents\HexCalc\Sys_cas\Common\hexsender\hexsender_code.hex' ... Done.
+Generating mapping: 
+Writing 'C:\Users\zoltanp\Documents\HexCalc\Sys_cas\Common\hexsender\hexsender_map.mif' ... Done.
+Writing 'C:\Users\zoltanp\Docume
