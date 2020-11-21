@@ -37,8 +37,9 @@ entity HexSender is
            reset : in  STD_LOGIC;
 			  start : in  STD_LOGIC;
 			  ready: out STD_LOGIC;
-           ma_start : in  STD_LOGIC_VECTOR (7 downto 0);
-           ma_end : in  STD_LOGIC_VECTOR (7 downto 0);
+           ma_start : in  STD_LOGIC_VECTOR (15 downto 0);
+           ma_end_or_len : in  STD_LOGIC_VECTOR (15 downto 0);
+			  ma_sel_len: in STD_LOGIC;
            rec_sel : in  STD_LOGIC_VECTOR (1 downto 0);
            tty_ready : in  STD_LOGIC;
            tty_send : out  STD_LOGIC;
@@ -113,10 +114,14 @@ signal rec_is_one, len_is_zero, len_gt_deflen: std_logic;
 signal hexsel: std_logic_vector(3 downto 0);
 
 signal ma_end_ext: std_logic_vector(15 downto 0);
+alias ma_end: std_logic_vector(15 downto 0) is ma_end_or_len;
+alias ma_len: std_logic_vector(15 downto 0) is ma_end_or_len;
 
 begin
 
-ma_end_ext <= X"0075"; --ma_end & X"00";
+-- when end address is presented, include it in output
+-- when count is presented, 0 means only end record
+ma_end_ext <= std_logic_vector(unsigned(ma_end) + 1) when (ma_sel_len = '0') else std_logic_vector(unsigned(ma_start) + unsigned(ma_len));
 
 -- default record length selection
 with rec_sel select
@@ -173,7 +178,7 @@ if (rising_edge(clk)) then
 		when ma_current_inc =>
 			ma_current <= std_logic_vector(unsigned(ma_current) + 1);
 		when ma_current_ma_start =>
-			ma_current <= ma_start & X"00";	-- ma_start is a page on 256 byte boundary
+			ma_current <= ma_start;	
 		when others =>
 			null;
 	end case;
@@ -249,6 +254,11 @@ if (rising_edge(clk)) then
 --				len <= len;
 		when len_ma_end_minus_ma_current =>
 			len <= std_logic_vector(unsigned(ma_end_ext) - unsigned(ma_current));
+--			if (ma_current > ma_end_ext) then
+--				len_lt_zero <= '1';
+--			else
+--				len_lt_zero <= '0';
+--			end if;
 		when len_def_len =>
 			len <= def_len;
 		when len_dec =>

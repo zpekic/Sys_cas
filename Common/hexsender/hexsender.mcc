@@ -240,11 +240,6 @@ tty_out:	if tty_ready then next else repeat;	// wait for previous send to finish
 			tty_send = yes, // single pulse (rising edge) will suffice
 			if tty_ready then repeat else return;
 			
-//			noop;
-			
-//			noop;
-			
-//			ret;
 			
 
 		

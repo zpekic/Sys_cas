@@ -204,8 +204,9 @@ component HexSender is
            reset : in  STD_LOGIC;
 			  start : in  STD_LOGIC;
 			  ready: out STD_LOGIC;
-           ma_start : in  STD_LOGIC_VECTOR (7 downto 0);
-           ma_end : in  STD_LOGIC_VECTOR (7 downto 0);
+           ma_start : in  STD_LOGIC_VECTOR (15 downto 0);
+           ma_end_or_len : in  STD_LOGIC_VECTOR (15 downto 0);
+			  ma_sel_len: in STD_LOGIC;
            rec_sel : in  STD_LOGIC_VECTOR (1 downto 0);
            tty_ready : in  STD_LOGIC;
            tty_send : out  STD_LOGIC;
@@ -482,8 +483,9 @@ hexdumper: HexSender port map (
 				reset => reset,
 				start => button(3),
 				ready => open,
-				ma_start => X"00", 	-- from 0x0000
-				ma_end => X"01",		-- to 0x00FF
+				ma_start => X"001C", 	
+				ma_end_or_len => X"0093",	
+				ma_sel_len => button(0),
 				rec_sel => switch(1 downto 0),
 				tty_ready => tty_ready,
 				tty_send => tty_send,
